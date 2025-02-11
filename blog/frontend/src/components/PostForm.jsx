@@ -1,13 +1,16 @@
 import React from "react";
 import { Form, useActionData } from "react-router-dom";
-const PostForm = ({ header, btnText, oldpostData }) => {
+import uuid from "react-uuid";
+import { redirect } from "react-router-dom";
+
+const PostForm = ({ header, btnText, oldpostData, method }) => {
   const data = useActionData();
 
   return (
     <>
       <div className="w-1/2 mx-auto">
         <p className="text-2xl">{header}</p>
-        <Form method="post">
+        <Form method={method}>
           <div className="mt-10">
             <label htmlFor="title" className="block text-xl my-2">
               Title
@@ -85,3 +88,42 @@ const PostForm = ({ header, btnText, oldpostData }) => {
 };
 
 export default PostForm;
+
+export const action = async ({ request, params }) => {
+  const data = await request.formData();
+  const method = request.method;
+  let url = "http://localhost:8080/posts";
+
+  const postData = {
+    id: uuid(),
+    title: data.get("title"),
+    description: data.get("description"),
+    image: data.get("image"),
+    date: data.get("date"),
+  };
+
+  if (method === "PATCH") {
+    const id = params.id;
+    url = `http://localhost:8080/posts/${id}`;
+
+    console.log(url);
+  }
+
+  const response = await fetch(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(postData),
+  });
+
+  if (response.status === 422) {
+    return response;
+  }
+
+  if (!response.ok) {
+    throw json({ message: "Can't Post" });
+  } else {
+    return redirect("/");
+  }
+};

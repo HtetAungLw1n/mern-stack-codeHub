@@ -19,7 +19,7 @@ const PostDetail = ({ post }) => {
           <img src={image} alt={title} className="w-full" />
         </div>
         <div className="p-5 ">
-          <p className="text-lg">{title}</p>
+          <p className="text-lg font-bold">{title.toUpperCase()}</p>
 
           <div className="flex gap-2 mt-2">
             <CalendarIcon className="size-6" />
